@@ -30,11 +30,14 @@ with scrape_form:
     st.caption("Select parameters")
     asset_col, cex_col, tf_col = st.columns(3)
     with asset_col:
-        form_values['asset'] = st.selectbox("Select asset", options=assets)
+        # form_values['asset'] = st.selectbox("Select asset", options=assets)v
+        form_values['asset'] = st.text_input("Select asset")
     with cex_col:
-        form_values['cex'] = st.selectbox("Select exchange", options=cexs)
+        # form_values['cex'] = st.selectbox("Select exchange", options=cexs)
+        form_values['cex'] = st.text_input("Select exchange")
     with tf_col:
-        form_values['tf'] = st.selectbox("Select timeframe", options=tfs)
+        # form_values['tf'] = st.selectbox("Select timeframe", options=tfs)
+        form_values['tf'] = st.text_input("Select timeframe")
     st.write(" ")
     with st.expander("dev options", expanded=False):
         candles_col, conn_col = st.columns(2)

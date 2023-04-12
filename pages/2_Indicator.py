@@ -2,24 +2,25 @@ import streamlit as st
 from core.modules.scraper import IndicatorScraper
 
 
-indicators = ["Sharp Shooter", "TEST"]
-charts = ["USenGa4h", "TEST"]
-assets = ["BTCUSDT", "ETH"]
-cexs = ["BYBIT", "BINANCE"]
-tfs = ["W", "D"]
+indicators = ["custom", "sharp_shooter", "market_spotter"]
+# charts = ["USenGa4h", "TEST"]
+# assets = ["BTCUSDT", "ETH"]
+# cexs = ["BYBIT", "BINANCE"]
+# tfs = ["W", "D"]
 
 
 def scrape(params):
     ind = IndicatorScraper( params['usr'],  params['pwd'],  
                               params['asset'], params['chart'], 
                               params['cex'], params['indicator'],
-                                params['tf'])
+                              params['tf'], params['buy_signal_pos'],
+                              params['sell_signal_pos'])
     return ind.run()
 
 
 
 st.title("Indicator scraper")
-st.subheader("##")
+st.subheader("#")
 
 form_values = {}
 scrape_form = st.form(key="indicator_params")
@@ -34,17 +35,28 @@ with scrape_form:
     st.caption("Select parameters")
     asset_col, cex_col, tf_col = st.columns(3)
     with asset_col:
-        form_values['asset'] = st.selectbox("Select asset", options=assets)
+        # form_values['asset'] = st.selectbox("Select asset", options=assets)v
+        form_values['asset'] = st.text_input("Select asset")
     with cex_col:
-        form_values['cex'] = st.selectbox("Select exchange", options=cexs)
+        # form_values['cex'] = st.selectbox("Select exchange", options=cexs)
+        form_values['cex'] = st.text_input("Select exchange")
     with tf_col:
-        form_values['tf'] = st.selectbox("Select timeframe", options=tfs)
+        # form_values['tf'] = st.selectbox("Select timeframe", options=tfs)
+        form_values['tf'] = st.text_input("Select timeframe")
     
     ind_col, chart_col = st.columns(2)
     with ind_col:
         form_values['indicator'] = st.selectbox("Select indicator", options=indicators)
     with chart_col:
-        form_values['chart'] = st.selectbox("Select chart code", options=charts)
+        # form_values['chart'] = st.selectbox("Select chart code", options=charts)
+        form_values['chart'] = st.text_input("Select chart code")
+
+    with st.expander("Custom indicator options", expanded=False):
+        buy_col, sell_col = st.columns(2)
+        with buy_col:
+            form_values['buy_signal_pos'] = st.number_input("Buy signal position", min_value=0, value=0)
+        with sell_col:
+            form_values['sell_signal_pos'] = st.number_input("Sell signal position", min_value=0, value=0)
 
     st.write("##")
     scrape_submit = st.form_submit_button("Scrape!")

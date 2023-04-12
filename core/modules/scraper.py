@@ -9,7 +9,7 @@ from selenium.webdriver.chrome.options import Options
 import time
 import logging
 from core.classes import DateMode, Indicator
-from core.utils import extract_market_spotter, extract_date, extract_sharp_shooter, to_signal, export_trades
+from core.utils import extract_custom_indicator, extract_market_spotter, extract_date, extract_sharp_shooter, to_signal, export_trades
 
 
 driver_path = "./rsc/chromedriver"
@@ -18,7 +18,7 @@ signin_url = "https://www.tradingview.com/#signin"
 
 class IndicatorScraper:
 
-    def __init__(self, usr, pwd, asset, chart, cex, indicator, tf) -> None:
+    def __init__(self, usr, pwd, asset, chart, cex, indicator, tf, buy_pos, sell_pos) -> None:
         self.usr = usr
         self.pwd = pwd
         self.asset = asset
@@ -26,6 +26,8 @@ class IndicatorScraper:
         self.cex = cex
         self.indicator = indicator
         self. tf = tf
+        self.buy_pos = buy_pos
+        self.sell_pos = sell_pos
 
 
     def __init_options(self):
@@ -97,12 +99,20 @@ class IndicatorScraper:
     #     if el:
     #         el.click()
 
+    
+    def __get_indicator(self, ind_data):
+        if self.indicator == 'custom':
+            return extract_custom_indicator(ind_data, self.buy_pos - 1, self.sell_pos - 1)
+        elif self.indicator == 'sharp_shooter':
+            return extract_sharp_shooter(ind_data)
+        elif self.indicator == 'market_spotter':
+            return extract_market_spotter(ind_data)
+
 
     def __get_data(self, driver):
         self.__check_loading(driver)
         sources = driver.find_elements(By.XPATH, "//div[contains(@class, 'valuesWrapper')]")
-        indicator = extract_market_spotter(sources[1]) if self.indicator == Indicator.ms \
-            else extract_sharp_shooter(sources[1])
+        indicator = self.__get_indicator(sources[1])
         date_state = sources[2].text.split("\n")
         date = extract_date(date_state[0], DateMode.hours)
         return {

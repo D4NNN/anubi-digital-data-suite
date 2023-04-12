@@ -45,6 +45,15 @@ def extract_sharp_shooter(data):
         # 'pending_sell': to_signal(extracted[12])
     }
 
+def extract_custom_indicator(data, buy_pos, sell_pos):
+    extracted = data.text.split("\n")
+    return {
+        'buy': to_signal(extracted[buy_pos]),
+        'sell': to_signal(extracted[sell_pos])
+        # 'pending_buy': to_signal(extracted[11]),
+        # 'pending_sell': to_signal(extracted[12])
+    }
+
 
 def export_trades(data):
     result = []
