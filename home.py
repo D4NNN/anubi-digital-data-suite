@@ -1,8 +1,18 @@
 import streamlit as st
+from PIL import Image
+
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 
-# st.title('Anubi digital Data Suite')
-# st.divider()
+st.title('Anubi digital Data Suite')
+st.divider()
+
 st.title('Guides')
 
 st.subheader("OHLC scraper")
@@ -27,7 +37,15 @@ st.markdown("Same as OHLC")
 st.markdown("**2. Asset, Exchange and Timeframe**")
 st.markdown("Same as OHLC with a small caveat:")
 st.markdown("The chosen timeframe **HAS** to be in the favorite timeframes (marked with a star in the dropdown list in tradingview) or already selected in the chart")
-st.markdown("**3. Chart code**")
+st.markdown("**3. Indicator**")
+st.markdown("If the indicator is not in the dropwdown, you can use the 'custom' setting:")
+st.markdown("* Chose 'custom' from the dropdown")
+st.markdown("* Set the indicator's buy and sell 'positions'")
+st.markdown("Consider the following:")
+st.image(image=Image.open('rsc/pos_example.png'))
+st.markdown("In this example, the buy signal is at position 10 and the sell's at position 11")
+st.markdown("Start counting from after the indicator's name, some testing may be required")
+st.markdown("**4. Chart code**")
 st.markdown("Found in the URL")
 st.code("https://it.tradingview.com/chart/USenGa4h/?symbol=BYBIT%3ABTCUSDT.P")
 st.markdown("Chart: `USenGa4h`")

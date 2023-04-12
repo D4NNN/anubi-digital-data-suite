@@ -1,6 +1,14 @@
 import streamlit as st
 from core.modules.scraper import IndicatorScraper
 
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 
 indicators = ["custom", "sharp_shooter", "market_spotter"]
 # charts = ["USenGa4h", "TEST"]

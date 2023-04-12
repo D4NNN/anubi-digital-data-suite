@@ -5,16 +5,6 @@ import plotly.express as px
 import pandas as pd
 
 
-# def get_percentage(entry, exit_, t):
-#     if exit_ > 0:
-#         return ((entry - exit_) / exit_) * 100 if t == "SHORT" else ((exit_ - entry) / entry) * 100
-#     else:
-#         return 0
-
-
-# def to_pnl(src):
-#     return pd.Series([src.iloc[0, 0], get_percentage(src.iloc[0, 1], src.iloc[0, 2], src.iloc[0, 3])])
-
 
 def calc_pnl(prices, trades, capital):
     size = 0
@@ -49,6 +39,27 @@ def calc_pnl(prices, trades, capital):
 
     return pd.DataFrame(eq_list)
 
+
+def calc_drawdown(trades):
+    current_peak = 0
+    result = []
+    for i, p in trades.iterrows():
+
+        # find peak
+        if p['equity'] > current_peak:
+            current_peak = p['equity']
+
+        # calculate drawdown
+        if p['equity'] < current_peak:
+            dr = ((current_peak - p['equity']) / current_peak) * 100
+            result.append({'date': p['date'], 'drawdown': dr})
+
+        # reset peak ?
+
+
+    return pd.DataFrame(result)
+
+
 # def calc_pnl_hold(prices, trades, capital):
 #     pass
 
@@ -67,21 +78,21 @@ def run_analysis(prices, trades, capital, settings):
         trades = trades[pd.to_datetime(trades['date']) >= pd.to_datetime(cutoff)]
 
 
-    result['asset'] = px.line(prices, x='date', y='close')
+    result['asset'] = px.line(prices, x='date', y='close', title="Asset performance")
 
     ## EQUITY
     trade_df = calc_pnl(prices, trades, capital)
-    result['equity'] = px.line(trade_df, x='date', y='equity')
+    result['equity'] = px.line(trade_df, x='date', y='equity', title="Total P&L")
+
+    ## VARIOUS
+    result['long_n'] = str((trades['type'] == "LONG").sum())
+    result['short_n'] = str((trades['type'] == "SHORT").sum())
+    result['ratio'] = str((trade_df['equity'].iloc[-1] / capital).round(2) - 1)
 
     ## DRAWDOWN
-
-    # temp_df = pd.DataFrame(columns=['cumulative', 'highest', 'drawdown'])
-
-    # temp_df['cumulative'] = trade_df.equity.cumsum().round(2)
-    # temp_df['highest'] =  temp_df['cumulative'].cummax()
-    # temp_df['drawdown'] = temp_df['cumulative'] - temp_df['highest']
-
-    # print(temp_df.to_string())
+    drawdown = calc_drawdown(trade_df)
+    result['drawdown'] = px.line(drawdown, x='date', y='drawdown', title="Drawdown")
+    result['max_drawdown'] = str(drawdown['drawdown'].max().round(2))
     
     return result
 

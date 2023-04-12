@@ -2,6 +2,14 @@ import streamlit as st
 import pandas as pd
 from core.modules.analysis import run_analysis
 
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 
 settings = {}
 
@@ -38,12 +46,19 @@ with csv_form:
 
 if csv_submit:
     with st.spinner(text="Processing..."):
-        lines = run_analysis(prices, trades, capital, settings)
-        if lines is not None:
-            st.write("Total P&L")
-            st.write(lines['equity'])
-            st.write("##")
-        
-            st.write("Asset performance")
-            st.write(lines['asset'])
-            st.write("##")
+        res = run_analysis(prices, trades, capital, settings)
+        if res is not None:
+
+            first_col, second_col, third_col = st.columns(3)
+            with first_col:
+                st.markdown("**Long trades:** " + res['long_n'])
+                st.markdown("**Short trades:** " + res['short_n'])
+            with second_col:
+                st.markdown("**P&L ratio:** " + res['ratio'])
+                st.markdown("**Max drawdown:** " + res['max_drawdown'])
+            with third_col:
+                st.write(" ")
+                
+            st.write(res['equity'])
+            st.write(res['drawdown'])
+            st.write(res['asset'])
