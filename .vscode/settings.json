@@ -1,0 +1,19 @@
+{
+    "python.analysis.extraPaths": [
+        "./core/*",
+        "/*",
+    ],
+    "cSpell.words": [
+        "Anubi",
+        "cexs",
+        "cummax",
+        "cumsum",
+        "iloc",
+        "iterrows",
+        "ohlc",
+        "pipenv",
+        "plotly",
+        "prefs",
+        "signin"
+    ]
+}
