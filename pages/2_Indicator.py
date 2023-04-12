@@ -19,7 +19,7 @@ def scrape(params):
 
 
 st.title("Indicator scraper")
-st.subheader("#")
+st.subheader("##")
 
 form_values = {}
 scrape_form = st.form(key="indicator_params")
