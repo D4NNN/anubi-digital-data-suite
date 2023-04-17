@@ -8,7 +8,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 import time
 import logging
-from core.classes import DateMode, Indicator
+from core.classes import DateMode
 from core.utils import extract_custom_indicator, extract_market_spotter, extract_date, extract_sharp_shooter, to_signal, export_trades
 
 
@@ -40,8 +40,8 @@ class IndicatorScraper:
         opts.add_experimental_option('prefs', {'credentials_enable_service': False})
         opts.add_experimental_option("excludeSwitches", ["enable-automation"])
         opts.add_experimental_option('useAutomationExtension', False)
+        # opts.add_argument("--headless=new")
         # opts.add_experimental_option("detach", True)
-        opts.add_argument("--headless=new")
         return opts
 
 
@@ -63,15 +63,16 @@ class IndicatorScraper:
 
     def __login(self, driver):
         driver.get(signin_url)
-        el = WebDriverWait(driver, 2) \
-            .until(lambda d: d.find_element(By.CLASS_NAME, "tv-signin-dialog__toggle-email"))
-        el.click()
-        driver.find_element(By.NAME, "username").send_keys(self.usr)
-        driver.find_element(By.NAME, "password").send_keys(self.pwd)
-        driver.find_element(By.TAG_NAME, "form").submit()
-        time.sleep(10)
-        # check_captcha(driver)
-
+        try:
+            el = WebDriverWait(driver, 2) \
+                .until(lambda d: d.find_element(By.CLASS_NAME, "tv-signin-dialog__toggle-email"))
+            el.click()
+            driver.find_element(By.NAME, "username").send_keys(self.usr)
+            driver.find_element(By.NAME, "password").send_keys(self.pwd)
+            driver.find_element(By.TAG_NAME, "form").submit()
+            time.sleep(5)
+        except:
+            raise
 
     # def check_captcha(driver):
     #     try:
@@ -89,7 +90,7 @@ class IndicatorScraper:
     def __check_loading(self, driver):
         container = driver.find_elements(By.XPATH, "//div[contains(@class, 'sources')]/div[contains(@class, 'eyeLoading')]")
         if container:
-            time.sleep(0.2)
+            time.sleep(3)
             self.__check_loading(driver)
         return
 
@@ -112,6 +113,10 @@ class IndicatorScraper:
     def __get_data(self, driver):
         self.__check_loading(driver)
         sources = driver.find_elements(By.XPATH, "//div[contains(@class, 'valuesWrapper')]")
+        if sources[1] == '' or sources[2] == '':
+            time.sleep(3)
+            self.__check_loading(driver)
+            sources = driver.find_elements(By.XPATH, "//div[contains(@class, 'valuesWrapper')]")
         indicator = self.__get_indicator(sources[1])
         date_state = sources[2].text.split("\n")
         date = extract_date(date_state[0], DateMode.hours)
@@ -129,7 +134,8 @@ class IndicatorScraper:
     def __scrape(self, driver):
         scraping = True
         trades = []
-        self.__activate_auto(driver)
+        # self.__activate_auto(driver)
+        time.sleep(0.2)
         price_axis = WebDriverWait(driver, 2).until(lambda d: d.find_element(By.CLASS_NAME, "price-axis-container"))
         chart_wrapper_width = WebDriverWait(driver, 2).until(lambda d: d.find_element(By.CLASS_NAME, "chart-gui-wrapper")).size['width']
         mouse_movement = ActionChains(driver).move_to_element_with_offset(price_axis, chart_wrapper_width - 20, 0)
@@ -152,22 +158,26 @@ class IndicatorScraper:
 
         logging.info("Instantiating Browser")
         browser = webdriver.Chrome(executable_path=driver_path, options=self.__init_options())
+        browser.implicitly_wait(2)
 
-        logging.info("Logging in")
-        self.__login(browser)
+        try:
+            logging.info("Logging in")
+            self.__login(browser)
 
-        logging.info("Getting Chart")
-        self.__get_chart(browser)
+            logging.info("Getting Chart")
+            self.__get_chart(browser)
 
-        logging.info("Changing timeframe")
-        self.__change_tf(browser)
+            logging.info("Changing timeframe")
+            self.__change_tf(browser)
 
-        logging.info("Scraping...")
-        trades = self.__scrape(browser)
+            logging.info("Scraping...")
+            trades = self.__scrape(browser)
 
-        browser.close()
+            browser.close()
 
-        elapsed = str((time.time() - start) / 60)
-        logging.info("Done in " + elapsed + "s")
+            elapsed = str((time.time() - start) / 60)
+            logging.info("Done in " + elapsed + "s")
         
-        return export_trades(trades)
+            return export_trades(trades)
+        except:
+            raise

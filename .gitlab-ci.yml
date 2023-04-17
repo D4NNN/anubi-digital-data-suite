@@ -1,0 +1,13 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  GROUP_NAME: "anubi-digital-data-suite"
+  PROJECT_NAME: "data-suite"
+  DOCKER_DRIVER: overlay2
+  REGISTRY: "registry.gitlab.com"
+  DOCKER_TLS_CERTDIR: ""
+  CACHE_KEY: ""
+  CI_IMAGE: "registry.gitlab.com/anubi-digital-data-suite/anubi-ci:dev-0.0.2"
+
