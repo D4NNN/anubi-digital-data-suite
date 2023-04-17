@@ -9,9 +9,10 @@ from core.utils import prepend_headers, construct_message, get_session_string, d
 
 class WebsocketScraper:
     
-    def __init__(self, usr, pwd, asset, cex, tf, candles=10000, keep_alive=False) -> None:
+    def __init__(self, usr, pwd, premium, asset, cex, tf, candles=10000, keep_alive=False) -> None:
         self.usr = usr
         self.pwd = pwd
+        self.premium = premium
         self.asset = asset
         self.cex = cex
         self.tf = tf
@@ -51,12 +52,14 @@ class WebsocketScraper:
         }
         response = requests.post(url=sign_in_url, data=data, headers=headers)
         #TO-DO: captcha EXCEPTION
+        print(response.json())
         return response.json()['user']['auth_token']
 
 
     def __connect_ws(self):
         headers = self.__init_headers()
-        return create_connection('wss://prodata.tradingview.com/socket.io/websocket', headers=headers)
+        ws_link = 'wss://prodata.tradingview.com/socket.io/websocket' if self.premium else 'wss://data.tradingview.com/socket.io/websocket'
+        return create_connection(ws_link, headers=headers)
 
 
     def __login(self, ws):
@@ -107,6 +110,7 @@ class WebsocketScraper:
                     ws.send(res)
                     print("\n\n-------------------------" + str(res) + "\n\n")
                 msgs = decode_msg(res)
+                logging.info(res)
                 # This may appear dumb but TV returns all the past data in the first message,
                 # the following messages are price updates and stuff I have yet to figure out
                 if not msgs.empty:

@@ -8,6 +8,7 @@ streamlit = "*"
 websocket-client = "*"
 selenium = "*"
 plotly = "*"
+kaleido = "*"
 
 [dev-packages]
 

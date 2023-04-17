@@ -8,12 +8,16 @@
         "cexs",
         "cummax",
         "cumsum",
+        "dayfirst",
+        "ffill",
+        "fillna",
         "iloc",
         "iterrows",
         "ohlc",
         "pipenv",
         "plotly",
         "prefs",
+        "prodata",
         "signin"
     ]
 }
