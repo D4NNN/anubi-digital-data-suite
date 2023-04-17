@@ -1,0 +1,17 @@
+FROM node:16-alpine as base
+
+RUN apk add --no-cache postgresql-client --repository=http://dl-cdn.alpinelinux.org/alpine/v3.14/main \
+    && apk add --no-cache tini
+
+COPY ./cli /usr/src/app/cli
+
+FROM base as dist
+
+COPY ./package.json /usr/src/app/package.json
+COPY ./infra/maintenance/package.json /usr/src/app/infra/maintenance/package.json
+COPY ./infra/maintenance/.env.template /usr/src/app/infra/maintenance/.env.template
+COPY ./infra/maintenance/bin /usr/src/app/infra/maintenance/bin
+
+WORKDIR /usr/src/app
+
+ENTRYPOINT ["/sbin/tini", "--"]

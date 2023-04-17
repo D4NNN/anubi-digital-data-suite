@@ -1,0 +1,11 @@
+{
+  "availability-zones:account=071016734273:region=eu-south-1": [
+    "eu-south-1a",
+    "eu-south-1b",
+    "eu-south-1c"
+  ],
+  "hosted-zone:account=071016734273:domainName=anubi.digital:region=eu-south-1": {
+    "Id": "/hostedzone/Z05238618GCYE6Z9ODHL",
+    "Name": "anubi.digital."
+  }
+}

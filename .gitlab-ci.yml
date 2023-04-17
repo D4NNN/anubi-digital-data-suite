@@ -1,4 +1,5 @@
 stages:
+  - install
   - build
   - deploy
 
@@ -10,4 +11,83 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   CACHE_KEY: ""
   CI_IMAGE: "registry.gitlab.com/anubi-digital-data-suite/anubi-ci:dev-0.0.2"
+
+# ATOMS
+#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#
+
+.base:
+  image: $CI_IMAGE
+  before_script:
+    - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$REGISTRY"
+    - alias dd='node /usr/src/app/bin/do.js'
+    - alias cdk='node /usr/src/app/bin/cdk.js'
+    - alias mc='node /usr/src/app/bin/mc.js'
+    - alias hh='node /usr/src/app/bin/help.js'
+    - alias em='node /usr/src/app/bin/envs.js'
+    - cp -r /usr/src/app/bin ./cli
+
+.docker:
+  variables:
+    # When using dind, it's wise to use the overlays driver for
+    # improved performance:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: "tcp://docker:2375"
+  services:
+    - docker:dind
+
+
+.prod:
+  extends: .base
+  only:
+    - main
+
+.prod_docker:
+  extends:
+    - .prod
+    - .docker
+
+
+# BUILD
+#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#
+
+install_cdk_dependencies:
+  extends: .base
+  stage: install
+  cache:
+    key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR-cdk_libs
+    paths:
+      - infra/aws/node_modules/
+    policy: push
+  script:
+    - cd infra/aws && yarn install --frozen-lockfile
+  only:
+    changes:
+      - infra/aws/yarn.lock
+
+install_dependencies:
+  extends: .base
+  stage: install
+  script:
+    - pipenv install
+  only:
+    changes:
+      - Pipfile.lock
+
+
+# DEPLOY
+#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#
+
+build:
+  extends: .prod_docker
+  stage: build
+  script:
+    - dd --build --pullImage=base-latest --cacheFrom=base-latest --push --df="Dockerfile" --env=prod --image=data-suite
+
+deploy:
+  extends: .staging
+  stage: deploy
+  needs: [install_dependencies]
+  script:
+    - cd infra/aws
+    - cdk --workdir=. --stack=anubi-data-suite-app --deploy --env=stg --args="--parameters commitHash=$CI_COMMIT_SHA"
 

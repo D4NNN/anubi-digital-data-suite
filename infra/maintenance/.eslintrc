@@ -1,0 +1,127 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "standard",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "prettier/@typescript-eslint",
+    "prettier/react",
+    "plugin:prettier/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "plugins": ["import", "@typescript-eslint", "prettier", "react"],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    "quotes": [2, "double", "avoid-escape"],
+    "camelcase": "off",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "default",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "variable",
+        "modifiers": ["const"],
+        "format": ["camelCase", "PascalCase", "UPPER_CASE"]
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"]
+      },
+      {
+        "selector": "parameter",
+        "format": ["camelCase", "PascalCase"]
+      },
+      {
+        "selector": "property",
+        "format": null
+      },
+      {
+        "selector": "typeParameter",
+        "format": ["PascalCase"],
+        "prefix": ["T"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": false
+        }
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      }
+    ],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-useless-constructor": "off",
+    "@typescript-eslint/no-use-before-define": "error",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "no-useless-constructor": "off",
+    "no-empty-pattern": "off",
+    "no-use-before-define": "off",
+    "react/prop-types": "off",
+    "react/display-name": "off",
+    "prettier/prettier": "error"
+  },
+  "overrides": [{
+    "files": ["__mocks__/**/*.js", "**/*.spec.{ts,tsx}"],
+    "env": {
+      "browser": true,
+      "node": true,
+      "mocha": true,
+      "jest": true
+    },
+    "rules": {
+      "no-restricted-globals": [
+        "error",
+        {
+          "name": "fit",
+          "message": "Use it instead."
+        },
+        {
+          "name": "fdescribe",
+          "message": "Use describe instead."
+        }
+      ],
+      "no-restricted-properties": [
+        "error",
+        {
+          "object": "describe",
+          "property": "only",
+          "message": "Use describe instead."
+        },
+        {
+          "object": "it",
+          "property": "only",
+          "message": "Use it instead."
+        },
+        {
+          "object": "test",
+          "property": "only",
+          "message": "Use test instead."
+        }
+      ]
+    }
+  }],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

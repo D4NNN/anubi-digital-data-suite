@@ -1,0 +1,25 @@
+FROM node:16-alpine as development_build
+
+RUN apk add --no-cache postgresql-client --repository=http://dl-cdn.alpinelinux.org/alpine/v3.14/main \
+    && apk add --no-cache tini
+
+COPY package.json yarn.lock ./
+
+# Copy
+COPY package.json yarn.lock ./
+COPY ./scripts ./scripts/
+COPY ./infra/maintenance/package.json ./infra/maintenance/
+COPY ./common/core/package.json ./common/core/
+
+RUN yarn install --frozen-lockfile && yarn cache clean
+
+# build files to serve in production
+FROM development_build as production_build
+
+ENTRYPOINT ["/sbin/tini", "--"]
+
+COPY ./infra/maintenance ./infra/maintenance/
+COPY ./common/core ./common/core/
+COPY ./anubi-ci ./anubi-ci
+
+RUN yarn maintenance build
